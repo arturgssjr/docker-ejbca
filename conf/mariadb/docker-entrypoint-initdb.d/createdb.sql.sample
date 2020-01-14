@@ -1,0 +1,12 @@
+###
+### this sql script is auto run when mariadb container start and ./conf/mariadb/data not exists.
+###
+### if your ./conf/mariadb/data is exists and you do not want to delete it, you can run by manual execution:
+###
+###     docker-compose exec ejbca-database bash
+###     mysql -u root -p < /docker-entrypoint-initdb.d/createdb.sql
+###
+
+CREATE DATABASE `ejbca`;
+
+FLUSH PRIVILEGES ;
