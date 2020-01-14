@@ -1,0 +1,66 @@
+version: "3.7"
+
+networks:
+    ejbca-bridge:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 10.230.0.0/16
+
+services:
+    ejbca-node1:
+        image: primekey/ejbca-ce:latest
+        environment:
+            # - TLS_SETUP_ENABLED=${TLS_SETUP_ENABLED}
+            - DATABASE_JDBC_URL=${DATABASE_JDBC_URL}
+            - DATABASE_USER=${DATABASE_USER}
+            - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+            - PROXY_AJP_BIND=${PROXY_AJP_BIND}
+        # restart: always
+        networks:
+            - ejbca-bridge
+        depends_on: 
+            - ejbca-database
+
+#    ejbca-node2:
+#        image: primekey/ejbca-ce:latest
+#        environment:
+#            # - TLS_SETUP_ENABLED=${TLS_SETUP_ENABLED}
+#            - DATABASE_JDBC_URL=${DATABASE_JDBC_URL}
+#            - DATABASE_USER=${DATABASE_USER}
+#            - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+#            - PROXY_AJP_BIND=${PROXY_AJP_BIND}
+#        # restart: always
+#        networks:
+#            - ejbca-bridge
+#        depends_on:
+#            - ejbca-database
+
+    ejbca-database:
+        image: mariadb
+        volumes: 
+            - ./conf/mariadb/data:/var/lib/mysql
+            - ./conf/mariadb/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+        environment: 
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        # restart: always
+        networks: 
+            - ejbca-bridge
+
+#    ejbca-frontend:
+#        image: httpd:2.4
+#        ports:
+#            - 80:80
+#            - 443:443
+#        volumes:
+#            - ./conf/apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
+#            - ./conf/pem:/etc/httpd/ssl
+#        networks:
+#            - ejbca-bridge
+#        depends_on:
+#            - ejbca-node1
+#            - ejbca-node2
